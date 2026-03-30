@@ -1,0 +1,66 @@
+[
+  {
+    "id": "tc01",
+    "reference_text": "She has been working here for five years",
+    "broken_text": "She working here five year",
+    "reference_wav": "test_audio\\tc01_reference.wav",
+    "broken_wav": "test_audio\\tc01_broken.wav",
+    "note": "Missing auxiliary, plural error"
+  },
+  {
+    "id": "tc02",
+    "reference_text": "I went to the market yesterday",
+    "broken_text": "I go to market yesterday",
+    "reference_wav": "test_audio\\tc02_reference.wav",
+    "broken_wav": "test_audio\\tc02_broken.wav",
+    "note": "Wrong tense (go vs went), missing article"
+  },
+  {
+    "id": "tc03",
+    "reference_text": "He doesn't know anything about it",
+    "broken_text": "He don't know nothing about it",
+    "reference_wav": "test_audio\\tc03_reference.wav",
+    "broken_wav": "test_audio\\tc03_broken.wav",
+    "note": "Subject-verb agreement, double negative"
+  },
+  {
+    "id": "tc04",
+    "reference_text": "They were very happy to see us",
+    "broken_text": "They was very happy to see us",
+    "reference_wav": "test_audio\\tc04_reference.wav",
+    "broken_wav": "test_audio\\tc04_broken.wav",
+    "note": "Subject-verb agreement (was vs were)"
+  },
+  {
+    "id": "tc05",
+    "reference_text": "Can you please open the window",
+    "broken_text": "You please open window",
+    "reference_wav": "test_audio\\tc05_reference.wav",
+    "broken_wav": "test_audio\\tc05_broken.wav",
+    "note": "Missing modal verb, missing article"
+  },
+  {
+    "id": "tc06",
+    "reference_text": "I have never been to Paris before",
+    "broken_text": "I never go Paris before",
+    "reference_wav": "test_audio\\tc06_reference.wav",
+    "broken_wav": "test_audio\\tc06_broken.wav",
+    "note": "Missing auxiliary, wrong tense"
+  },
+  {
+    "id": "tc07",
+    "reference_text": "The children are playing in the garden",
+    "broken_text": "Childrens is playing in garden",
+    "reference_wav": "test_audio\\tc07_reference.wav",
+    "broken_wav": "test_audio\\tc07_broken.wav",
+    "note": "Incorrect plural, subject-verb agreement, missing article"
+  },
+  {
+    "id": "tc08",
+    "reference_text": "She told me that she would come tomorrow",
+    "broken_text": "She tell me she will come tomorrow",
+    "reference_wav": "test_audio\\tc08_reference.wav",
+    "broken_wav": "test_audio\\tc08_broken.wav",
+    "note": "Wrong tense in reported speech"
+  }
+]

@@ -1,0 +1,21 @@
+# SpeakScore v2 — All dependencies
+# Install: pip install -r requirements.txt
+
+# Core
+flask>=3.0.0
+flask-cors>=4.0.0
+openai-whisper>=20231117
+torch>=2.0.0
+
+# Upgrade 3 — Semantic similarity
+sentence-transformers>=2.2.2
+
+# Upgrade 4 — Audio preprocessing
+noisereduce>=3.0.0
+librosa>=0.10.0
+soundfile>=0.12.1
+
+# Utilities
+numpy>=1.24.0
+pydub>=0.25.1
+gtts>=2.3.0

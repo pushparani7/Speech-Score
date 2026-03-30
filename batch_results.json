@@ -1,0 +1,173 @@
+[
+  {
+    "id": "tc01",
+    "note": "Missing auxiliary, plural error",
+    "reference_text": "She has been working here for five years",
+    "broken_text": "She working here five year",
+    "transcription": "She working here five years.",
+    "score": 77,
+    "wer": 0.2,
+    "errors": [
+      "Missing auxiliary verb: e.g. 'has been working' or 'is working'",
+      "Missing auxiliary verb(s): has, been",
+      "Missing preposition(s): for"
+    ],
+    "feedback": "Missing words: 'has', 'been', 'for'. Missing auxiliary verb: e.g. 'has been working' or 'is working'. Missing auxiliary verb(s): has, been. Missing preposition(s): for. Reference: \"She has been working here for five years\"",
+    "missing_words": [
+      "has",
+      "been",
+      "for"
+    ],
+    "extra_words": []
+  },
+  {
+    "id": "tc02",
+    "note": "Wrong tense (go vs went), missing article",
+    "reference_text": "I went to the market yesterday",
+    "broken_text": "I go to market yesterday",
+    "transcription": "I go to market yesterday.",
+    "score": 73,
+    "wer": 0.0,
+    "errors": [
+      "Possible tense error \u2014 check verb agreement",
+      "Missing article(s): the"
+    ],
+    "feedback": "Missing words: 'went', 'the'. Unexpected words: 'go'. Possible tense error \u2014 check verb agreement. Missing article(s): the. Reference: \"I went to the market yesterday\"",
+    "missing_words": [
+      "went",
+      "the"
+    ],
+    "extra_words": [
+      "go"
+    ]
+  },
+  {
+    "id": "tc03",
+    "note": "Subject-verb agreement, double negative",
+    "reference_text": "He doesn't know anything about it",
+    "broken_text": "He don't know nothing about it",
+    "transcription": "He don't know nothing about it.",
+    "score": 67,
+    "wer": 0.0,
+    "errors": [
+      "Subject-verb agreement error: use 'doesn't' with he/she/it",
+      "Double negative: use 'doesn't know anything'"
+    ],
+    "feedback": "Missing words: \"doesn't\", 'anything'. Unexpected words: \"don't\", 'nothing'. Subject-verb agreement error: use 'doesn't' with he/she/it. Double negative: use 'doesn't know anything'. Reference: \"He doesn't know anything about it\"",
+    "missing_words": [
+      "doesn't",
+      "anything"
+    ],
+    "extra_words": [
+      "don't",
+      "nothing"
+    ]
+  },
+  {
+    "id": "tc04",
+    "note": "Subject-verb agreement (was vs were)",
+    "reference_text": "They were very happy to see us",
+    "broken_text": "They was very happy to see us",
+    "transcription": "They was very happy to see us.",
+    "score": 86,
+    "wer": 0.0,
+    "errors": [
+      "Subject-verb agreement error: use 'were' with they/we/I",
+      "Missing auxiliary verb(s): were"
+    ],
+    "feedback": "Missing words: 'were'. Unexpected words: 'was'. Subject-verb agreement error: use 'were' with they/we/I. Missing auxiliary verb(s): were. Reference: \"They were very happy to see us\"",
+    "missing_words": [
+      "were"
+    ],
+    "extra_words": [
+      "was"
+    ]
+  },
+  {
+    "id": "tc05",
+    "note": "Missing modal verb, missing article",
+    "reference_text": "Can you please open the window",
+    "broken_text": "You please open window",
+    "transcription": "You please open window.",
+    "score": 80,
+    "wer": 0.0,
+    "errors": [
+      "Missing auxiliary verb(s): can",
+      "Missing article(s): the"
+    ],
+    "feedback": "Missing words: 'can', 'the'. Missing auxiliary verb(s): can. Missing article(s): the. Reference: \"Can you please open the window\"",
+    "missing_words": [
+      "can",
+      "the"
+    ],
+    "extra_words": []
+  },
+  {
+    "id": "tc06",
+    "note": "Missing auxiliary, wrong tense",
+    "reference_text": "I have never been to Paris before",
+    "broken_text": "I never go Paris before",
+    "transcription": "I never go Paris before.",
+    "score": 67,
+    "wer": 0.0,
+    "errors": [
+      "Missing auxiliary verb(s): have, been",
+      "Missing preposition(s): to"
+    ],
+    "feedback": "Missing words: 'have', 'been', 'to'. Unexpected words: 'go'. Missing auxiliary verb(s): have, been. Missing preposition(s): to. Reference: \"I have never been to Paris before\"",
+    "missing_words": [
+      "have",
+      "been",
+      "to"
+    ],
+    "extra_words": [
+      "go"
+    ]
+  },
+  {
+    "id": "tc07",
+    "note": "Incorrect plural, subject-verb agreement, missing article",
+    "reference_text": "The children are playing in the garden",
+    "broken_text": "Childrens is playing in garden",
+    "transcription": "Children's is playing in garden.",
+    "score": 50,
+    "wer": 0.2,
+    "errors": [
+      "Missing auxiliary verb(s): are",
+      "Missing article(s): the, the"
+    ],
+    "feedback": "Missing words: 'the', 'children', 'are', 'the'. Unexpected words: \"children's\", 'is'. Missing auxiliary verb(s): are. Missing article(s): the, the. Reference: \"The children are playing in the garden\"",
+    "missing_words": [
+      "the",
+      "children",
+      "are",
+      "the"
+    ],
+    "extra_words": [
+      "children's",
+      "is"
+    ]
+  },
+  {
+    "id": "tc08",
+    "note": "Wrong tense in reported speech",
+    "reference_text": "She told me that she would come tomorrow",
+    "broken_text": "She tell me she will come tomorrow",
+    "transcription": "She tell me she will come tomorrow.",
+    "score": 67,
+    "wer": 0.0,
+    "errors": [
+      "Missing auxiliary verb(s): would"
+    ],
+    "feedback": "Missing words: 'told', 'that', 'would'. Unexpected words: 'tell', 'will'. Missing auxiliary verb(s): would. Reference: \"She told me that she would come tomorrow\"",
+    "missing_words": [
+      "told",
+      "that",
+      "would"
+    ],
+    "extra_words": [
+      "tell",
+      "will"
+    ]
+  }
+]

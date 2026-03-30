@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpeakScore v2 — Speech Error Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Satoshi:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080a0f;
+      --bg1: #0d1017;
+      --bg2: #131720;
+      --bg3: #1a2030;
+      --border: rgba(255, 255, 255, 0.06);
+      --border2: rgba(255, 255, 255, 0.11);
+      --text: #dde3f0;
+      --muted: #5a6378;
+      --muted2: #8896b3;
+      --green: #00f5a0;
+      --green2: rgba(0, 245, 160, 0.1);
+      --amber: #ffb547;
+      --red: #ff6b6b;
+      --blue: #5b9cf6;
+      --purple: #a78bfa;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Satoshi', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: var(--bg1);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: lpulse 2s infinite;
+    }
+
+    @keyframes lpulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.5
+      }
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* SHELL */
+    .shell {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 52px);
+      align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--bg1);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0.875rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      align-self: start;
+    }
+
+    .slabel {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .sitem {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--muted2);
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      width: 100%;
+      background: transparent;
+      text-align: left;
+    }
+
+    .sitem:hover {
+      background: var(--bg2);
+      color: var(--text);
+    }
+
+    .sitem.active {
+      background: var(--green2);
+      color: var(--green);
+      border-color: rgba(0, 245, 160, 0.2);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-cell {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .ex-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ex-btn {
+      width: 100%;
+      text-align: left;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted2);
+      font-family: var(--sans);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .ex-btn:hover {
+      background: var(--bg2);
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    .server-info {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 2;
+      margin-top: auto;
+    }
+
+    .up-item {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted2);
+    }
+
+    .up-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* MAIN */
+    .main {
+      padding: 1.5rem 1.75rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      min-width: 0;
+    }
+
+    /* PANELS */
+    .panel {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .ph {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ph-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .ph-hint {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pb {
+      padding: 1.25rem 1.5rem;
+    }
+
+    /* INPUT */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media(max-width:800px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flabel {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .upload-zone {
+      min-height: 120px;
+      width: 100%;
+      border: 1.5px dashed var(--border2);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: var(--bg2);
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--green);
+      background: var(--green2);
+    }
+
+    .upload-zone input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .up-text {
+      font-size: 13px;
+      color: var(--muted2);
+      pointer-events: none;
+    }
+
+    .up-text strong {
+      color: var(--green);
+    }
+
+    .up-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .file-chip {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .file-chip.show {
+      display: flex;
+    }
+
+    .file-nm {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--green);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-rm {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .file-rm:hover {
+      color: var(--red);
+    }
+
+    .mic-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mic-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      color: var(--muted2);
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mic-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .mic-btn.rec {
+      background: rgba(255, 107, 107, 0.1);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .mic-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .mic-dot.blink {
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.2
+      }
+    }
+
+    .mic-timer {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .waveform {
+      flex: 1;
+      min-width: 80px;
+      height: 28px;
+      background: var(--bg3);
+      border-radius: 6px;
+      overflow: hidden;
+      display: none;
+      align-items: center;
+      padding: 0 6px;
+      gap: 2px;
+    }
+
+    .waveform.show {
+      display: flex;
+    }
+
+    .wb {
+      width: 3px;
+      border-radius: 2px;
+      background: var(--green);
+      opacity: 0.6;
+      animation: wavebar 0.8s ease infinite;
+      flex-shrink: 0;
+    }
+
+    .wb:nth-child(odd) {
+      animation-delay: 0.2s;
+    }
+
+    .wb:nth-child(3n) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes wavebar {
+
+      0%,
+      100% {
+        height: 3px
+      }
+
+      50% {
+        height: 18px
+      }
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: rgba(0, 245, 160, 0.5);
+    }
+
+    textarea::placeholder {
+      color: var(--muted);
+    }
+
+    .field-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .options-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 1rem;
+      padding: 10px 14px;
+      background: var(--bg2);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted2);
+      cursor: pointer;
+    }
+
+    .toggle-group input[type=checkbox] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--green);
+    }
+
+    .tog-hint {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* ACTIONS */
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .run-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--green);
+      color: #080a0f;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 28px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .run-btn:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .run-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .cmp-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      border-radius: 10px;
+      padding: 11px 22px;
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cmp-btn:hover {
+      background: rgba(167, 139, 250, 0.1);
+    }
+
+    .cmp-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+      border-radius: 10px;
+      padding: 11px 20px;
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: var(--bg2);
+      color: var(--text);
+    }
+
+    .status-msg {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    /* PROGRESS */
+    .prog-wrap {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .prog-wrap.show {
+      display: block;
+    }
+
+    .prog-steps {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .pstep {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--bg3);
+      transition: background 0.4s;
+    }
+
+    .pstep.done {
+      background: var(--green);
+    }
+
+    .pstep.act {
+      background: var(--amber);
+      animation: shim 1s infinite;
+    }
+
+    @keyframes shim {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.4
+      }
+    }
+
+    .prog-lbl {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* RESULTS */
+    .results {
+      display: none;
+    }
+
+    .results.show {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media(max-width:700px) {
+      .metrics-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .mc {
+      background: var(--bg1);
+      padding: 1rem 1.25rem;
+    }
+
+    .mc-val {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .mc-lbl {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .mc-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .score-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .score-left {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .score-num {
+      font-family: var(--mono);
+      font-size: 52px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .score-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .score-lbl {
+      font-size: 12px;
+      color: var(--muted2);
+    }
+
+    .score-verdict {
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .score-bar-wrap {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .score-track {
+      height: 7px;
+      background: var(--bg3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .scale-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .rsep {
+      height: 1px;
+      background: var(--border);
+      margin: 0 1.5rem;
+    }
+
+    .rsection {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .rsection-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* WER */
+    .wer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media(max-width:600px) {
+      .wer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wer-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .wer-lbl {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .wer-num {
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 500;
+    }
+
+    .wer-break {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .wop {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    .wop .s {
+      color: var(--amber);
+    }
+
+    .wop .d {
+      color: var(--red);
+    }
+
+    .wop .i {
+      color: var(--blue);
+    }
+
+    .wer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .wer-badge.good {
+      background: rgba(0, 245, 160, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(0, 245, 160, 0.25);
+    }
+
+    .wer-badge.same {
+      background: rgba(90, 99, 120, 0.2);
+      color: var(--muted2);
+      border: 1px solid var(--border);
+    }
+
+    /* SEMANTIC */
+    .sem-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .sem-score {
+      font-family: var(--mono);
+      font-size: 36px;
+      font-weight: 500;
+    }
+
+    .sem-track {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .sem-bar-bg {
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .sem-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .sem-lbl {
+      font-size: 12px;
+      color: var(--muted2);
+    }
+
+    .sem-vs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sem-vs-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+    }
+
+    .sem-vs-item span {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* DIFF */
+    .transc-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .diff-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .diff-line {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .diff-line:last-child {
+      margin: 0;
+    }
+
+    .dl {
+      min-width: 68px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .dl-ref {
+      color: var(--blue);
+    }
+
+    .dl-usr {
+      color: var(--amber);
+    }
+
+    .w-ok {
+      color: var(--text);
+    }
+
+    .w-miss {
+      background: rgba(255, 107, 107, 0.15);
+      color: var(--red);
+      padding: 1px 5px;
+      border-radius: 4px;
+      text-decoration: line-through;
+    }
+
+    .w-extra {
+      background: rgba(255, 181, 71, 0.15);
+      color: var(--amber);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .wtag-miss {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 107, 107, 0.12);
+      color: var(--red);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .wtag-sub {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 181, 71, 0.12);
+      color: var(--amber);
+      border: 1px solid rgba(255, 181, 71, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ERRORS */
+    .err-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .err-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255, 107, 107, 0.07);
+      border: 1px solid rgba(255, 107, 107, 0.18);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .err-ico {
+      color: var(--red);
+      flex-shrink: 0;
+    }
+
+    .err-txt {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .no-err {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(0, 245, 160, 0.07);
+      border: 1px solid rgba(0, 245, 160, 0.2);
+      border-radius: 8px;
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    .feedback-box {
+      background: var(--bg);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .note {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: var(--bg2);
+      border-radius: 6px;
+      border-left: 2px solid var(--muted);
+    }
+
+    /* COMPARISON */
+    .cmp-panel {
+      display: none;
+    }
+
+    .cmp-panel.show {
+      display: block;
+    }
+
+    .cmp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media(max-width:600px) {
+      .cmp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cmp-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .cmp-card.winner {
+      border-color: rgba(0, 245, 160, 0.35);
+    }
+
+    .cmp-mtag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .base-tag {
+      color: var(--blue);
+    }
+
+    .small-tag {
+      color: var(--green);
+    }
+
+    .cmp-transc {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .cmp-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cmp-stat {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    .cmp-stat .val {
+      font-size: 16px;
+      font-weight: 500;
+      display: block;
+    }
+
+    .cmp-verdict {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted2);
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .pre-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+
+    .pre-on {
+      background: rgba(0, 245, 160, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(0, 245, 160, 0.25);
+    }
+
+    .pre-off {
+      background: rgba(90, 99, 120, 0.15);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* JSON */
+    .json-copy-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .copy-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .json-pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .jk {
+      color: var(--blue);
+    }
+
+    .js {
+      color: var(--green);
+    }
+
+    .jn {
+      color: var(--amber);
+    }
+
+    .jm {
+      color: var(--muted2);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(8, 10, 15, 0.3);
+      border-top-color: #080a0f;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-dot"></div>Speak<span>Score</span>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div>
+        <div class="slabel">Navigation</div>
+        <button class="sitem active">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8" />
+          </svg>
+          Analyze Speech
+        </button>
+      </div>
+      <div>
+        <div class="slabel">Last Run</div>
+        <div class="stat-row">
+          <div class="stat-cell">
+            <div class="stat-val" id="sideScore">—</div>
+            <div class="stat-lbl">score</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val" id="sideErr">—</div>
+            <div class="stat-lbl">errors</div>
+          </div>
+        </div>
+        <div class="stat-row" style="margin-top:8px">
+          <div class="stat-cell">
+            <div class="stat-val" id="sideWer">—</div>
+            <div class="stat-lbl">WER after</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val" id="sideSem">—</div>
+            <div class="stat-lbl">semantic</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="slabel">Quick Examples</div>
+        <div class="ex-list">
+          <button class="ex-btn" onclick="loadEx(0)">Missing auxiliary verb</button>
+          <button class="ex-btn" onclick="loadEx(1)">Wrong tense / article</button>
+          <button class="ex-btn" onclick="loadEx(2)">Double negative</button>
+          <button class="ex-btn" onclick="loadEx(3)">was vs were</button>
+          <button class="ex-btn" onclick="loadEx(4)">Missing modal verb</button>
+          <button class="ex-btn" onclick="loadEx(5)">Reported speech</button>
+        </div>
+      </div>
+
+      <div class="server-info">
+        <div class="slabel">Backend</div>
+        <div id="srvStatus" style="color:var(--amber)">● checking…</div>
+        <div>localhost:5000 · app.py</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- INPUT PANEL -->
+      <div class="panel">
+        <div class="ph">
+          <span class="ph-title">// input</span>
+          <span class="ph-hint">baseline system — accuracy varies with audio quality and accent</span>
+        </div>
+        <div class="pb">
+          <div class="input-grid">
+            <div>
+              <div class="flabel">01 — audio file</div>
+              <div class="upload-zone" id="uploadZone">
+                <input type="file" id="audioFile" accept=".wav,.mp3,.m4a,.ogg,.flac" onchange="onFile(this)">
+                <div style="font-size:26px;pointer-events:none">🎙️</div>
+                <div class="up-text"><strong>Click to upload</strong> or drag &amp; drop</div>
+                <div class="up-sub">.wav · .mp3 · .m4a · .ogg · .flac</div>
+              </div>
+              <div class="file-chip" id="fileChip">
+                <span class="file-nm" id="fileNm"></span>
+                <span class="file-rm" onclick="clearFile()">✕</span>
+              </div>
+              <div class="mic-row">
+                <button class="mic-btn" id="micBtn" onclick="toggleRec()">
+                  <span class="mic-dot" id="micDot"></span><span id="micLbl">Record mic</span>
+                </button>
+                <div class="waveform" id="waveform">
+                  <div class="wb" style="height:5px"></div>
+                  <div class="wb" style="height:14px"></div>
+                  <div class="wb" style="height:9px"></div>
+                  <div class="wb" style="height:18px"></div>
+                  <div class="wb" style="height:7px"></div>
+                  <div class="wb" style="height:15px"></div>
+                  <div class="wb" style="height:11px"></div>
+                  <div class="wb" style="height:20px"></div>
+                  <div class="wb" style="height:5px"></div>
+                  <div class="wb" style="height:13px"></div>
+                </div>
+                <span class="mic-timer" id="micTimer"></span>
+              </div>
+            </div>
+            <div>
+              <div class="flabel">02 — reference sentence (expected)</div>
+              <textarea id="refIn" placeholder="e.g. She has been working here for five years
+
+Leave blank for transcription-only mode"></textarea>
+              <div class="field-hint">The correct sentence the speaker should have said.</div>
+            </div>
+          </div>
+
+          <!-- UPGRADE 4 toggle -->
+          <div class="options-row">
+            <label class="toggle-group">
+              <input type="checkbox" id="prepToggle" checked>
+              <span>Apply audio preprocessing</span>
+              <span class="tog-hint">noise reduction + silence trim</span>
+            </label>
+          </div>
+
+          <div class="prog-wrap" id="progWrap">
+            <div class="prog-steps">
+              <div class="pstep" id="ps1"></div>
+              <div class="pstep" id="ps2"></div>
+              <div class="pstep" id="ps3"></div>
+              <div class="pstep" id="ps4"></div>
+            </div>
+            <div class="prog-lbl" id="progLbl">Uploading…</div>
+          </div>
+
+          <div class="action-row">
+            <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+              <span id="runIco">▶</span><span id="runTxt">Analyze Speech</span>
+            </button>
+            <button class="cmp-btn" id="cmpBtn" onclick="runComparison()">
+              <span id="cmpIco">⚡</span><span id="cmpTxt">Compare base vs small</span>
+            </button>
+            <button class="clear-btn" onclick="clearAll()">Clear</button>
+            <span class="status-msg" id="statusMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPGRADE 2: MODEL COMPARISON PANEL -->
+      <div class="panel cmp-panel" id="cmpPanel">
+        <div class="ph">
+          <span class="ph-title">// model comparison</span>
+          <span class="ph-hint">whisper-base vs whisper-small · accuracy vs speed</span>
+        </div>
+        <div class="pb">
+          <div class="cmp-grid" id="cmpGrid"></div>
+          <div class="cmp-verdict" id="cmpVerdict"></div>
+          <div class="note" style="margin-top:10px;">whisper-small loads on first comparison (~30s). Speed measurements
+            include Python overhead and vary by hardware. Results on learner speech may differ from clean-speech
+            benchmarks.</div>
+        </div>
+      </div>
+
+      <!-- RESULTS PANEL -->
+      <div class="panel results" id="resultsPanel">
+        <div class="ph">
+          <span class="ph-title">// results</span>
+          <span class="ph-hint" id="resTime"></span>
+          <div id="preBadge"></div>
+        </div>
+
+        <!-- Metrics strip -->
+        <div class="metrics-strip">
+          <div class="mc">
+            <div class="mc-val" id="mComposite" style="color:var(--green)">—</div>
+            <div class="mc-lbl">composite score</div>
+            <div class="mc-sub">60% semantic + 40% difflib</div>
+          </div>
+          <div class="mc">
+            <div class="mc-val" id="mSemantic" style="color:var(--blue)">—</div>
+            <div class="mc-lbl">semantic score</div>
+            <div class="mc-sub">embedding cosine similarity</div>
+          </div>
+          <div class="mc">
+            <div class="mc-val" id="mWerAfter" style="color:var(--amber)">—</div>
+            <div class="mc-lbl">WER after preprocessing</div>
+            <div class="mc-sub">lower = better ASR</div>
+          </div>
+          <div class="mc">
+            <div class="mc-val" id="mWerBefore" style="color:var(--muted2)">—</div>
+            <div class="mc-lbl">WER before preprocessing</div>
+            <div class="mc-sub">raw audio baseline</div>
+          </div>
+        </div>
+
+        <!-- Score hero -->
+        <div class="score-hero">
+          <div class="score-left">
+            <div class="score-num" id="scoreNum">—</div>
+            <div class="score-meta">
+              <div class="score-lbl">composite similarity score</div>
+              <div class="score-verdict" id="scoreVerdict"></div>
+            </div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-track">
+              <div class="score-fill" id="scoreFill" style="width:0%"></div>
+            </div>
+            <div class="scale-row"><span>0%</span><span>50%</span><span>100%</span></div>
+          </div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- UPGRADE 1: WER -->
+        <div class="rsection">
+          <div class="rsection-title">WER before &amp; after preprocessing</div>
+          <div class="wer-grid">
+            <div class="wer-card">
+              <div class="wer-lbl">Before — raw audio</div>
+              <div class="wer-num" id="werBN">—</div>
+              <div class="wer-break" id="werBB"></div>
+            </div>
+            <div class="wer-card">
+              <div class="wer-lbl">After — noise reduced + trimmed</div>
+              <div class="wer-num" id="werAN">—</div>
+              <div class="wer-break" id="werAB"></div>
+              <div id="werBadge"></div>
+            </div>
+          </div>
+          <div class="note" style="margin-top:10px;">WER = (substitutions + deletions + insertions) / reference words.
+            WER 0.0 = perfect transcription. A perfect WER does not mean perfect grammar — it only means Whisper heard
+            every word correctly.</div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- UPGRADE 3: Semantic -->
+        <div class="rsection">
+          <div class="rsection-title">semantic similarity (all-MiniLM-L6-v2 embeddings)</div>
+          <div class="sem-row">
+            <div class="sem-score" id="semScore" style="color:var(--blue)">—</div>
+            <div class="sem-track">
+              <div class="sem-bar-bg">
+                <div class="sem-bar-fill" id="semFill" style="width:0%;background:var(--blue)"></div>
+              </div>
+              <div class="sem-lbl" id="semLbl">—</div>
+            </div>
+          </div>
+          <div class="sem-vs" id="semVs" style="margin-top:12px;"></div>
+          <div class="note" style="margin-top:10px;">Semantic score detects meaning-level similarity that word-overlap
+            misses. Limitation: may not reliably catch tense or grammatical nuance — use alongside WER and rule-based
+            errors for full picture.</div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- Transcription -->
+        <div class="rsection">
+          <div class="rsection-title">Whisper transcription (after preprocessing)</div>
+          <div class="transc-box" id="transcBox"></div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- Word diff + missing words -->
+        <div class="rsection" id="diffSection">
+          <div class="rsection-title">Word diff — LCS position-aware comparison</div>
+          <div class="diff-box" id="diffBox"></div>
+          <div id="missingWrap" style="margin-top:14px;display:none;">
+            <div
+              style="font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">
+              Missing from transcription</div>
+            <div id="missingTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+          </div>
+          <div id="subWrap" style="margin-top:4px;display:none;">
+            <div
+              style="font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">
+              Substituted words (expected → said)</div>
+            <div id="subTags" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+          <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);"><span
+                style="background:rgba(255,107,107,0.15);color:var(--red);padding:1px 7px;border-radius:4px;text-decoration:line-through;font-family:var(--mono);font-size:11px;">word</span>
+              missing</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);"><span
+                style="background:rgba(255,181,71,0.15);color:var(--amber);padding:1px 7px;border-radius:4px;font-family:var(--mono);font-size:11px;">word</span>
+              substituted</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);"><span
+                style="color:var(--text);font-family:var(--mono);font-size:11px;">word</span> correct</div>
+          </div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- Errors -->
+        <div class="rsection">
+          <div class="rsection-title">Grammar errors detected (rule-based)</div>
+          <div class="err-list" id="errList"></div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- Feedback section -->
+        <div class="rsection">
+          <div class="rsection-title">semantic-aware feedback</div>
+          <div class="feedback-box" id="feedbackBox"></div>
+          <div class="note" style="margin-top:10px;">This is a baseline system with observed limitations on learner
+            speech. Feedback combines rule-based grammar detection with semantic similarity context. It does not replace
+            a human tutor and may miss errors outside the current rule set.</div>
+        </div>
+
+        <div class="rsep"></div>
+
+        <!-- JSON -->
+        <div class="rsection">
+          <div class="json-copy-row">
+            <div class="rsection-title" style="margin:0">JSON output (full)</div>
+            <button class="copy-btn" onclick="copyJson()">Copy JSON</button>
+          </div>
+          <div class="json-pre" id="jsonPre"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const EXAMPLES = [
+      { ref: "She has been working here for five years" },
+      { ref: "I went to the market yesterday" },
+      { ref: "He doesn't know anything about it" },
+      { ref: "They were very happy to see us" },
+      { ref: "Can you please open the window" },
+      { ref: "She told me that she would come tomorrow" },
+    ];
+    let audioBlob = null, mediaRecorder = null, recChunks = [], recInterval = null, recSeconds = 0, lastJson = null;
+
+    (async () => {
+      const el = document.getElementById('srvStatus');
+      try {
+        await fetch('http://localhost:5000/', { method: 'HEAD', signal: AbortSignal.timeout(1800) });
+        el.textContent = '● connected'; el.style.color = 'var(--green)';
+      }
+      catch { el.textContent = '● offline — run app.py'; el.style.color = 'var(--red)'; }
+    })();
+
+    function loadEx(i) { document.getElementById('refIn').value = EXAMPLES[i].ref; setStatus('Reference loaded. Upload or record audio, then click Analyze.'); }
+    function onFile(inp) { if (!inp.files[0]) return; const f = inp.files[0]; audioBlob = f; document.getElementById('fileNm').textContent = f.name; document.getElementById('fileChip').classList.add('show'); setStatus(`File: ${f.name} (${(f.size / 1024).toFixed(1)} KB)`); }
+    function clearFile() { audioBlob = null; document.getElementById('audioFile').value = ''; document.getElementById('fileChip').classList.remove('show'); setStatus(''); }
+
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) { audioBlob = f; document.getElementById('fileNm').textContent = f.name; document.getElementById('fileChip').classList.add('show'); } });
+
+    async function toggleRec() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); return; }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recChunks = []; recSeconds = 0;
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => recChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          clearInterval(recInterval); stream.getTracks().forEach(t => t.stop());
+          audioBlob = new Blob(recChunks, { type: 'audio/webm' });
+          document.getElementById('fileNm').textContent = 'mic_recording.webm';
+          document.getElementById('fileChip').classList.add('show');
+          document.getElementById('micBtn').classList.remove('rec');
+          document.getElementById('micDot').classList.remove('blink');
+          document.getElementById('micLbl').textContent = 'Record mic';
+          document.getElementById('micTimer').textContent = '';
+          document.getElementById('waveform').classList.remove('show');
+          setStatus(`Recording saved (${recSeconds}s). Click Analyze.`);
+        };
+        mediaRecorder.start();
+        document.getElementById('micBtn').classList.add('rec');
+        document.getElementById('micDot').classList.add('blink');
+        document.getElementById('micLbl').textContent = 'Stop';
+        document.getElementById('waveform').classList.add('show');
+        recInterval = setInterval(() => { recSeconds++; document.getElementById('micTimer').textContent = recSeconds + 's'; }, 1000);
+      } catch { setStatus('Mic access denied — use file upload instead.'); }
+    }
+
+    async function runAnalysis() {
+      if (!audioBlob) { setStatus('⚠ Upload or record audio first.'); return; }
+      const ref = document.getElementById('refIn').value.trim();
+      const pre = document.getElementById('prepToggle').checked;
+      const btn = document.getElementById('runBtn');
+      btn.disabled = true;
+      document.getElementById('runIco').innerHTML = '<div class="spinner"></div>';
+      document.getElementById('runTxt').textContent = 'Processing…';
+      document.getElementById('progWrap').classList.add('show');
+      setProgress(1, 'Uploading audio…');
+      const fd = new FormData();
+      fd.append('audio', audioBlob, audioBlob.name || 'recording.webm');
+      fd.append('reference', ref);
+      fd.append('preprocess', pre ? 'true' : 'false');
+      try {
+        setTimeout(() => setProgress(2, pre ? 'Preprocessing: noise reduction + silence trim…' : 'Skipping preprocessing…'), 400);
+        setTimeout(() => setProgress(3, 'Whisper transcribing audio…'), 900);
+        const res = await fetch('http://localhost:5000/analyze', { method: 'POST', body: fd });
+        setProgress(4, 'Running semantic analysis + grammar detection…');
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        setTimeout(() => render(data), 300);
+      } catch (e) { document.getElementById('progWrap').classList.remove('show'); setStatus('Error: ' + e.message + ' — is app.py running?'); }
+      btn.disabled = false;
+      document.getElementById('runIco').textContent = '▶';
+      document.getElementById('runTxt').textContent = 'Analyze Speech';
+    }
+
+    async function runComparison() {
+      if (!audioBlob) { setStatus('⚠ Upload or record audio first.'); return; }
+      const btn = document.getElementById('cmpBtn');
+      btn.disabled = true;
+      document.getElementById('cmpIco').innerHTML = '<div class="spinner" style="border:2px solid rgba(167,139,250,0.2);border-top-color:var(--purple)"></div>';
+      document.getElementById('cmpTxt').textContent = 'Comparing models…';
+      setStatus('Loading whisper-small if not cached (~30s first time)…');
+      const fd = new FormData();
+      fd.append('audio', audioBlob, audioBlob.name || 'recording.webm');
+      fd.append('reference', document.getElementById('refIn').value.trim());
+      try {
+        const res = await fetch('http://localhost:5000/compare', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        renderComparison(data);
+        setStatus('Model comparison complete.');
+      } catch (e) { setStatus('Comparison error: ' + e.message); }
+      btn.disabled = false;
+      document.getElementById('cmpIco').textContent = '⚡';
+      document.getElementById('cmpTxt').textContent = 'Compare base vs small';
+    }
+
+    function renderComparison(data) {
+      const panel = document.getElementById('cmpPanel');
+      panel.classList.add('show');
+      const b = data.base, s = data.small;
+      const bW = b.wer !== null ? b.wer.toFixed(3) : 'n/a';
+      const sW = s.wer !== null ? s.wer.toFixed(3) : 'n/a';
+      const bWin = b.wer !== null && s.wer !== null && b.wer <= s.wer;
+      const sWin = b.wer !== null && s.wer !== null && s.wer < b.wer;
+      document.getElementById('cmpGrid').innerHTML = `
+    <div class="cmp-card ${bWin ? 'winner' : ''}">
+      <div class="cmp-mtag base-tag">whisper-base ${bWin ? '✓ lower WER' : ''}</div>
+      <div class="cmp-transc">${b.transcription || '—'}</div>
+      <div class="cmp-stats">
+        <div class="cmp-stat" style="color:var(--amber)"><span class="val">${bW}</span>WER</div>
+        <div class="cmp-stat" style="color:var(--green)"><span class="val">${b.score !== null ? b.score + '%' : '—'}</span>score</div>
+        <div class="cmp-stat" style="color:var(--blue)"><span class="val">${b.semantic_score !== null ? b.semantic_score + '%' : '—'}</span>semantic</div>
+        <div class="cmp-stat" style="color:var(--muted2)"><span class="val">${b.inference_sec}s</span>time</div>
+      </div>
+    </div>
+    <div class="cmp-card ${sWin ? 'winner' : ''}">
+      <div class="cmp-mtag small-tag">whisper-small ${sWin ? '✓ lower WER' : ''}</div>
+      <div class="cmp-transc">${s.transcription || '—'}</div>
+      <div class="cmp-stats">
+        <div class="cmp-stat" style="color:var(--amber)"><span class="val">${sW}</span>WER</div>
+        <div class="cmp-stat" style="color:var(--green)"><span class="val">${s.score !== null ? s.score + '%' : '—'}</span>score</div>
+        <div class="cmp-stat" style="color:var(--blue)"><span class="val">${s.semantic_score !== null ? s.semantic_score + '%' : '—'}</span>semantic</div>
+        <div class="cmp-stat" style="color:var(--muted2)"><span class="val">${s.inference_sec}s</span>time</div>
+      </div>
+    </div>`;
+      document.getElementById('cmpVerdict').textContent = data.verdict || '';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function col(s) { return s >= 80 ? 'var(--green)' : s >= 60 ? 'var(--amber)' : 'var(--red)'; }
+
+    function render(data) {
+      document.getElementById('progWrap').classList.remove('show');
+      const panel = document.getElementById('resultsPanel');
+      panel.classList.add('show');
+      document.getElementById('resTime').textContent = new Date().toLocaleTimeString();
+      document.getElementById('preBadge').innerHTML = data.preprocessing_applied
+        ? '<span class="pre-badge pre-on">✓ preprocessed</span>'
+        : '<span class="pre-badge pre-off">raw audio</span>';
+
+      const has = data.score !== null && data.score !== undefined;
+      if (has) {
+        const c = col(data.score);
+        document.getElementById('mComposite').textContent = data.score + '%';
+        document.getElementById('mComposite').style.color = c;
+        const sem = data.semantic || {};
+        document.getElementById('mSemantic').textContent = sem.score !== null && sem.score !== undefined ? sem.score + '%' : 'n/a';
+        if (data.wer_after) document.getElementById('mWerAfter').textContent = data.wer_after.wer.toFixed(3);
+        if (data.wer_before) document.getElementById('mWerBefore').textContent = data.wer_before.wer.toFixed(3);
+        document.getElementById('scoreNum').textContent = data.score + '%';
+        document.getElementById('scoreNum').style.color = c;
+        document.getElementById('scoreFill').style.background = c;
+        setTimeout(() => { document.getElementById('scoreFill').style.width = data.score + '%'; }, 50);
+        const verd = data.score >= 80 ? '✓ Strong match' : data.score >= 60 ? '△ Partial match' : '✗ Significant errors';
+        document.getElementById('scoreVerdict').textContent = verd;
+        document.getElementById('scoreVerdict').style.color = c;
+        document.getElementById('sideScore').textContent = data.score + '%';
+        document.getElementById('sideErr').textContent = (data.errors || []).length;
+        document.getElementById('sideWer').textContent = data.wer_after ? data.wer_after.wer.toFixed(2) : '—';
+        document.getElementById('sideSem').textContent = (sem.score !== null && sem.score !== undefined) ? sem.score + '%' : '—';
+
+        renderWer('werBN', 'werBB', data.wer_before);
+        renderWer('werAN', 'werAB', data.wer_after);
+        const badge = document.getElementById('werBadge');
+        if (data.wer_before && data.wer_after) {
+          const imp = data.wer_before.wer > data.wer_after.wer;
+          const diff = Math.abs(data.wer_before.wer - data.wer_after.wer).toFixed(3);
+          badge.innerHTML = imp
+            ? `<div class="wer-badge good">✓ WER improved by ${diff} after preprocessing</div>`
+            : `<div class="wer-badge same">— No WER change from preprocessing</div>`;
+        }
+
+        if (sem.score !== null && sem.score !== undefined) {
+          document.getElementById('semScore').textContent = sem.score + '%';
+          document.getElementById('semLbl').textContent = sem.label || '';
+          setTimeout(() => { document.getElementById('semFill').style.width = sem.score + '%'; }, 100);
+          document.getElementById('semVs').innerHTML = `
+        <div class="sem-vs-item">difflib: <span>${data.difflib_score !== undefined ? data.difflib_score + '%' : '—'}</span></div>
+        <div class="sem-vs-item">semantic: <span>${sem.score}%</span></div>
+        <div class="sem-vs-item">composite: <span>${data.score}%</span></div>
+        <div class="sem-vs-item">cosine: <span>${sem.cosine !== null ? sem.cosine : '—'}</span></div>`;
+        } else {
+          document.getElementById('semScore').textContent = 'n/a';
+          document.getElementById('semLbl').textContent = 'install sentence-transformers';
+        }
+      } else {
+        ['scoreNum', 'sideScore', 'sideErr', 'sideWer', 'sideSem'].forEach(id => document.getElementById(id).textContent = '—');
+      }
+
+      document.getElementById('transcBox').textContent = data.transcription || data.transcription_raw || '';
+
+      const ds = document.getElementById('diffSection');
+      const refV = document.getElementById('refIn').value.trim();
+      if (has && refV) {
+        ds.style.display = '';
+        document.getElementById('missingWrap').style.display = 'none';
+        document.getElementById('subWrap').style.display = 'none';
+        document.getElementById('diffBox').innerHTML = buildDiff(refV, data.transcription || data.transcription_raw || '');
+      } else { ds.style.display = 'none'; }
+
+      const el = document.getElementById('errList');
+      if (data.errors && data.errors.length)
+        el.innerHTML = data.errors.map(e => `<div class="err-row"><div class="err-ico">⚠</div><div class="err-txt">${e}</div></div>`).join('');
+      else
+        el.innerHTML = '<div class="no-err">✓ No grammatical errors detected by current rule set</div>';
+
+      document.getElementById('feedbackBox').textContent = data.feedback || '';
+      lastJson = data;
+      document.getElementById('jsonPre').innerHTML = jsonHL(data);
+      setTimeout(() => { document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+      setStatus('Analysis complete.');
+    }
+
+    function renderWer(nId, bId, d) {
+      if (!d) { document.getElementById(nId).textContent = '—'; document.getElementById(bId).innerHTML = ''; return; }
+      const el = document.getElementById(nId);
+      el.textContent = d.wer.toFixed(3);
+      el.style.color = d.wer === 0 ? 'var(--green)' : d.wer < 0.3 ? 'var(--amber)' : 'var(--red)';
+      document.getElementById(bId).innerHTML = `
+    <div class="wop">S:<span class="s">${d.substitutions}</span></div>
+    <div class="wop">D:<span class="d">${d.deletions}</span></div>
+    <div class="wop">I:<span class="i">${d.insertions}</span></div>
+    <div class="wop">N:<span>${d.ref_words}</span></div>`;
+    }
+
+    function buildDiff(ref, usr) {
+      const c = s => s.toLowerCase().replace(/[.,!?;:'"]/g, '').trim().split(/\s+/).filter(Boolean);
+      const rW = c(ref), uW = c(usr);
+      const rO = ref.replace(/[.,!?;:'"]/g, '').trim().split(/\s+/).filter(Boolean);
+      const uO = usr.replace(/[.,!?;:'"]/g, '').trim().split(/\s+/).filter(Boolean);
+      const m = rW.length, n = uW.length;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+        dp[i][j] = rW[i - 1] === uW[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+      const ops = []; let i = m, j = n;
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && rW[i - 1] === uW[j - 1]) { ops.unshift({ type: 'eq', rw: rO[i - 1], uw: uO[j - 1] }); i--; j--; }
+        else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) { ops.unshift({ type: 'ins', uw: uO[j - 1] }); j--; }
+        else { ops.unshift({ type: 'del', rw: rO[i - 1] }); i--; }
+      }
+      const mg = []; let k = 0;
+      while (k < ops.length) {
+        if (ops[k].type === 'del' && k + 1 < ops.length && ops[k + 1].type === 'ins') { mg.push({ type: 'sub', rw: ops[k].rw, uw: ops[k + 1].uw }); k += 2; }
+        else { mg.push(ops[k]); k++; }
+      }
+      const rH = mg.map(o => o.type === 'eq' ? `<span class="w-ok">${o.rw}</span>` : o.type === 'del' ? `<span class="w-miss">${o.rw}</span>` : o.type === 'sub' ? `<span class="w-miss">${o.rw}</span>` : '').filter(Boolean).join(' ');
+      const uH = mg.map(o => o.type === 'eq' ? `<span class="w-ok">${o.uw}</span>` : o.type === 'ins' ? `<span class="w-extra">${o.uw}</span>` : o.type === 'sub' ? `<span class="w-extra">${o.uw}</span>` : '').filter(Boolean).join(' ');
+      const miss = mg.filter(o => o.type === 'del').map(o => o.rw);
+      const subs = mg.filter(o => o.type === 'sub');
+      const mw = document.getElementById('missingWrap'), mt = document.getElementById('missingTags');
+      if (miss.length) { mt.innerHTML = miss.map(w => `<span class="wtag-miss">✕ ${w}</span>`).join(''); mw.style.display = 'block'; }
+      else mw.style.display = 'none';
+      const sw = document.getElementById('subWrap'), st = document.getElementById('subTags');
+      if (subs.length) { st.innerHTML = subs.map(s => `<span class="wtag-sub">${s.rw}<span style="font-size:10px;opacity:0.7;margin:0 3px">→</span>${s.uw}</span>`).join(''); sw.style.display = 'block'; }
+      else sw.style.display = 'none';
+      return `<div class="diff-line"><span class="dl dl-ref">expected</span><span>${rH}</span></div><div class="diff-line"><span class="dl dl-usr">said&nbsp;&nbsp;&nbsp;</span><span>${uH}</span></div>`;
+    }
+
+    function jsonHL(o) {
+      return JSON.stringify(o, null, 2)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)":/g, '<span class="jk">"$1"</span>:')
+        .replace(/: "([^"]+)"/g, ': <span class="js">"$1"</span>')
+        .replace(/: (-?\d+\.?\d*)/g, ': <span class="jn">$1</span>')
+        .replace(/: (null|true|false)/g, ': <span class="jm">$1</span>');
+    }
+
+    function setProgress(step, lbl) {
+      for (let i = 1; i <= 4; i++) { const e = document.getElementById('ps' + i); if (e) e.className = 'pstep' + (i < step ? ' done' : i === step ? ' act' : ''); }
+      document.getElementById('progLbl').textContent = lbl;
+    }
+    function copyJson() { if (lastJson) navigator.clipboard.writeText(JSON.stringify(lastJson, null, 2)); }
+    function clearAll() {
+      clearFile(); document.getElementById('refIn').value = '';
+      document.getElementById('resultsPanel').classList.remove('show');
+      document.getElementById('cmpPanel').classList.remove('show');
+      document.getElementById('scoreFill').style.width = '0%';
+      document.getElementById('semFill').style.width = '0%';
+      document.getElementById('progWrap').classList.remove('show');
+      setStatus('');
+    }
+    function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+  </script>
+</body>
+
+</html>
