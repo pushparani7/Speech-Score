@@ -1,4 +1,4 @@
-# SpeakScore — Non-Native Speech Transcription & Error Analysis
+# SpeakScore - Non-Native Speech Transcription & Error Analysis
 
 > A baseline system that transcribes non-native English speech, detects grammar errors, scores semantic similarity, and delivers structured feedback end to end from raw audio to JSON output.
 
